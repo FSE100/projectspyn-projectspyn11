@@ -1,45 +1,68 @@
-brick.SetColorMode(2, 2);
+%Initializing keyboard input
+global key
+InitKeyboard();
 
-while brick.TouchPressed(3) == 0
-    color = brick.ColorCode(2);
-    distance = brick.UltrasonicDist(1);
-    if color == 5
-        brick.StopMotor('A');
-        brick.StopMotor('D');
-        pause (5);
-        brick.MoveMotor('A', -100);
-        brick.MoveMotor('D', -100);
+x = 0;
+%Loop to make everything happen more than once
+while x == 0
+    pause(.1);
+       switch key
+        case 'space'
+            %This switch is basically only here for when things go horribly
+            %wrong I can mash the spacebar and everything will be ok
+            x = 1;
+            break;
+        case 0
+            %The actual program starts here
+            
+            %Updates color and distance sensors every loop
+            distance = brick.UltrasonicDist(1);
+            
+            %Driving Function
+            speed = 100;
+            brick.MoveMotor('A', -60);
+            brick.MoveMotor('D', -60);
+            %if wall, then turn and pray
+            if distance < 20
+                disp("Wall Detected");
+                brick.StopMotor('A');
+                brick.StopMotor('D');
+                brick.MoveMotor('A', -50);
+                brick.MoveMotor('D', 50);
+                pause(2.1);
+                distance = brick.UltrasonicDist(1);
+                if distance < 40
+                    disp("Wall Detected");
+                    brick.MoveMotor('A', 50);
+                    brick.MoveMotor('D', -50);
+                    pause(4);
+                    brick.StopMotor('A');
+                    brick.StopMotor('D');
+                    pause(.1);
+                    distance = brick.UltrasonicDist(1);
+                    %CURRENTLY INCOMPLETE. For getting around tricky parts
+                    %of the map. very wip.
+                    if distance < 40
+                        disp("Dead End Detected");
+                        brick.MoveMotor('A', 50);
+                        brick.MoveMotor('D', -50);
+                        pause(2.1);
+                        brick.MoveMotor('A', -60);
+                        brick.MoveMotor('D', -60);
+                        pause(4);
+                        brick.StopMotor('A');
+                        brick.StopMotor('D');
+                        brick.MoveMotor('A', 50);
+                        brick.MoveMotor('D', -50);
+                        pause(2.1);
+                    end
+                        
+                end
+            end
     end
-    if color == 2
-        brick.StopMotor('A');
-        brick.StopMotor('D');
-        pause (5);
-    end
-    if color == 3
-        brick.StopMotor('A');
-        brick.StopMotor('D');
-        pause (5);
-    end
-    if distance < 30
-        brick.StopMotor('A');
-        brick.StopMotor('D');
-        brick.MoveMotor('A', -50);
-        brick.MoveMotor('D', 50);
-        pause (2);
-        brick.StopMotor('A');
-        brick.StopMotor('D');
-        distance = brick.UltrasonicDist(1);
-        if distance < 30
-            brick.MoveMotor('A', 50);
-            brick.MoveMotor('D', -50);
-            pause (3.2);
-            brick.StopMotor('A');
-            brick.StopMotor('D');
-        end
-    end
-    brick.MoveMotor('A', -100);
-    brick.MoveMotor('D', -100);
 end
-brick.StopMotor('A');
-brick.StopMotor('D');
-    
+
+CloseKeyboard();
+
+%This is where I would put my functions, IF MATLAB WASNT STUPID AND GLOBAL
+%VARIABLES WERE ACCESSIBLE BY FUNCTIONS MATLAB WHY
